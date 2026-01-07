@@ -1,0 +1,10 @@
+[Unit]
+Description=Run login script every 2 hours and on boot
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2h
+Unit=szulogin.service
+
+[Install]
+WantedBy=timers.target

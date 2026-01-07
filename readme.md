@@ -25,3 +25,14 @@ szu-srun-login.exe -u USER_ID -p PASSWORD
 ```
 ./szu-srun-login -u USER_ID -p PASSWORD -t 30s
 ```
+
+### systemd 开机登录 + 定时登录
+
+```bash
+cp ./szu-srun-login /usr/local/bin/szu-srun-login
+cp szulogin.service /etc/systemd/system/
+cp szulogin.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now szulogin.timer
+systemctl status szulogin.timer
+```
