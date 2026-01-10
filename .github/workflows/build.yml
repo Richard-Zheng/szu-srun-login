@@ -1,9 +1,10 @@
 name: Release szu-srun-login
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 jobs:
   release:
@@ -32,36 +33,27 @@ jobs:
 
       - name: Build
         run: |
-          mkdir -p build/linux build/windows build/macos
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o build/linux/szu-srun-login
-          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o build/windows/szu-srun-login.exe
-          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o build/macos/szu-srun-login
+          mkdir -p build/linux build/windows
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o build/linux/szu-srun-login-linux-amd64
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o build/linux/szu-srun-login-linux-arm64
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o build/windows/szu-srun-login-windows-amd64.exe
+          CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags="-s -w" -o build/windows/szu-srun-login-windows-arm64.exe
 
       - name: Create archives
         run: |
           cd build/linux
-          zip szu-srun-login-linux-amd64.zip szu-srun-login
-          mv szu-srun-login-linux-amd64.zip ../
+          zip szu-srun-login-linux-amd64.zip szu-srun-login-linux-amd64
+          zip szu-srun-login-linux-arm64.zip szu-srun-login-linux-arm64
+          mv *.zip ../
           
           cd ../windows
-          zip szu-srun-login-windows-amd64.zip szu-srun-login.exe
-          mv szu-srun-login-windows-amd64.zip ../
-          
-          cd ../macos
-          zip szu-srun-login-macos-arm64.zip szu-srun-login
-          mv szu-srun-login-macos-arm64.zip ../
+          zip szu-srun-login-windows-amd64.zip szu-srun-login-windows-amd64.exe
+          zip szu-srun-login-windows-arm64.zip szu-srun-login-windows-arm64.exe
+          mv *.zip ../
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          files: |
-            build/szu-srun-login-linux-amd64.zip
-            build/szu-srun-login-windows-amd64.zip
-            build/szu-srun-login-macos-arm64.zip
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          body: ${{ steps.tag.outputs.message }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.SZU_SRUN_LOGIN }}
+          name: szu-srun-login-binaries
+          path: build/*.zip
+          retention-days: 7
