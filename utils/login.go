@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/http"
 	"net/url"
 
 	"github.com/sirupsen/logrus"
@@ -68,7 +67,7 @@ func Login(username, password string) error {
 	base_url := "https://net.szu.edu.cn/cgi-bin/srun_portal"
 
 	//发送请求
-	resp, err := http.Get(base_url + "?" + params.Encode())
+	resp, err := InsecureClient.Get(base_url + "?" + params.Encode())
 	if err != nil {
 		logrus.Errorf("发送登录请求失败: %v", err)
 		return err
@@ -98,7 +97,7 @@ func getChallenge(username, ip, callback string) (string, error) {
 	params.Add("callback", callback)
 
 	//发送请求
-	resp, err := http.Get(base_url + "?" + params.Encode())
+	resp, err := InsecureClient.Get(base_url + "?" + params.Encode())
 	if err != nil {
 		logrus.Errorf("发送获取challenge请求失败: %v", err)
 		return "", err

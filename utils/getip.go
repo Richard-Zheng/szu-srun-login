@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"io"
-	"net/http"
 	"regexp"
 
 	"github.com/sirupsen/logrus"
@@ -11,7 +10,7 @@ import (
 
 func GetIP() (string, error) {
 	url := "https://net.szu.edu.cn/srun_portal_success?ac_id=12&theme=proyx"
-	resp, err := http.Get(url)
+	resp, err := InsecureClient.Get(url)
 	if err != nil {
 		logrus.Errorf("发送获取IP请求失败: %v", err)
 		return "", err
